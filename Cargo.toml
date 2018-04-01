@@ -1,0 +1,11 @@
+[package]
+name = "chat"
+version = "0.1.0"
+authors = ["Dragos Carmaciu <dragman@gmail.com>"]
+
+[dependencies]
+mio = "0.6"
+http-muncher = "0.3.1"
+rustc-serialize = "0.3.15"
+sha1 = "0.1.1"
+byteorder = "1"
