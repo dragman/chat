@@ -324,7 +324,7 @@ impl WebSocketServer {
                 if event.readiness().is_hup() {
                     let client = self.clients.remove(&token).unwrap();
                     client.socket.shutdown(std::net::Shutdown::Both).unwrap();
-                    self.poll.deregister(&client.socket);
+                    self.poll.deregister(&client.socket).unwrap();
                 }
             }
         }
