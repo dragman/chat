@@ -168,7 +168,7 @@ impl WebSocketClient {
                 self.interest.remove(mio::Ready::writable());
 
                 if close_connection {
-                    self.interest.insert(mio::Ready::hup());
+                    self.interest.insert(mio::unix::UnixReady::hup());
                 } else {
                     self.interest.insert(mio::Ready::readable());
                 }
@@ -267,7 +267,9 @@ impl WebSocketServer {
             for event in &self.events {
                 println!("event={:?}", event);
                 let token = event.token();
-                if event.readiness().is_readable() {
+                let ready = event.readiness();
+                let unix_ready = mio::unix::UnixReady::from(ready);
+                if unix_ready.is_readable() {
                     match token {
                         SERVER_TOKEN => {
                             let client_socket = match self.socket.accept() {
@@ -307,7 +309,7 @@ impl WebSocketServer {
                     }
                 }
 
-                if event.readiness().is_writable() {
+                if unix_ready.is_writable() {
                     let client = self.clients.get_mut(&token).unwrap();
                     client.write();
                     println!("socket was writeable, interest now = {:?}", client.interest);
@@ -321,7 +323,7 @@ impl WebSocketServer {
                         .unwrap();
                 }
 
-                if event.readiness().is_hup() {
+                if unix_ready.is_hup() {
                     let client = self.clients.remove(&token).unwrap();
                     client.socket.shutdown(std::net::Shutdown::Both).unwrap();
                     self.poll.deregister(&client.socket).unwrap();
